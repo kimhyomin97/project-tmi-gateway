@@ -1,7 +1,11 @@
 package com.tmi.gateway.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -9,6 +13,8 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Map;
 
+@Slf4j
+@Component
 public class TokenProvider {
     private final long tokenOffset = 3600000; // 1시간
     private String secret = "secret_key_1234";
@@ -25,7 +31,18 @@ public class TokenProvider {
     }
 
     public boolean validateToken(String token){
-        //
-        return false;
+        try{
+            Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e){
+            log.error("Expired JWT token");
+            return false;
+        } catch (JwtException e){
+            log.error("Tampered JWT token");
+            return false;
+        } catch (NullPointerException e){
+            log.error("Null JWT token");
+            return false;
+        }
     }
 }
