@@ -33,6 +33,11 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.27'
 	// jwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	// nimbus-jose-jwt
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.10'
+
+	// javax.xml.bind
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
