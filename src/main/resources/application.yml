@@ -1,0 +1,75 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: gateway
+
+  # MySQL 연결
+  datasource:
+    url: jdbc:mysql://${DB_URL}/gateway?useSSL=false&serverTimezone=UTC
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA 설정
+  jpa:
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    show-sql: false
+    database: mysql
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  # JWT 설정
+  jwt:
+    secret: ${JWT_SECRET}
+    expirationMinutes: 30
+
+  # Redis 설정
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      # password: 1234  # 주석 처리된 부분은 필요시 활성화
+
+  # Spring Cloud Gateway 설정
+  cloud:
+    gateway:
+      routes:
+        - id: first_route
+          uri: http://httpbin.org:80
+          predicates:
+            - Path=/get
+        - id: second_route
+          uri: http://httpbin.org:80
+          predicates:
+            - Path=/post
+
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: spring-boot-app
+            client-secret: ${KEYCLOAK_CLIENT_SECRET}
+            scope:
+              - openid
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+        provider:
+          keycloak:
+            authorization-uri: http://localhost:8080/realms/myrealm/protocol/openid-connect/auth
+            token-uri: http://localhost:8080/realms/myrealm/protocol/openid-connect/token
+            user-info-uri: http://localhost:8080/realms/myrealm/protocol/openid-connect/userinfo
+
+keycloak:
+  auth-server-url: http://localhost:8080/realms/myrealm
+  realm: myrealm
+  resource: spring-boot-app
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET}
+  use-resource-role-mappings: true
+  public-client: true
+  autodetect-bearer-only: true
